@@ -11,44 +11,40 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class RecommendationService {
 
-    private final List<RecommendationRules> fixedRules;
+    private final List<RecommendationRules> rules;
     private final DynamicRuleRepository dynamicRuleRepository;
     private final RecommendationRepository repository;
 
     public RecommendationService(
-            List<RecommendationRules> fixedRules,
+            List<RecommendationRules> rules,
             DynamicRuleRepository dynamicRuleRepository,
             RecommendationRepository repository
     ) {
-        this.fixedRules = fixedRules;
+        this.rules = rules;
         this.dynamicRuleRepository = dynamicRuleRepository;
         this.repository = repository;
     }
 
 
     public List<RecommendationDto> getRecommendations(UUID userId) {
-        List<RecommendationDto> recommendations = new ArrayList<>();
+      
+        return rules.stream()
+                .map(rule -> {
+                    try {
+                        return rule.check(userId);
+                    } catch (Exception e) {
+                        System.err.println("Ошибка в правиле " + rule.getClass().getSimpleName() + ": " + e.getMessage());
+                        return Optional.empty();
+                    }
+                })
+                .flatMap(opt -> ((Optional<RecommendationDto>) opt).stream())
+                .collect(Collectors.toList());
 
-        for (RecommendationRules rule : fixedRules) {
-            rule.check(userId).ifPresent(recommendations::add);
-        }
-
-        List<DynamicRule> dynamicRules = dynamicRuleRepository.findAll();
-        for (DynamicRule rule : dynamicRules) {
-            if (evaluateDynamicRule(userId, rule)) {
-                recommendations.add(new RecommendationDto(
-                        rule.getProductId().toString(),
-                        rule.getProductName(),
-                        rule.getProductText()
-                ));
-            }
-        }
-
-        return recommendations;
     }
 
     private boolean evaluateDynamicRule(UUID userId, DynamicRule rule) {
