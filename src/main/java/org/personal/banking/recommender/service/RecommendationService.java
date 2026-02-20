@@ -2,6 +2,7 @@ package org.personal.banking.recommender.service;
 
 import org.personal.banking.recommender.dto.RecommendationDto;
 import org.personal.banking.recommender.entities.DynamicRule;
+import org.personal.banking.recommender.entities.RuleCondition;
 import org.personal.banking.recommender.postgres.repository.DynamicRuleRepository;
 import org.personal.banking.recommender.h2.repository.RecommendationRepository;
 import org.personal.banking.recommender.rules.RecommendationRules;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,23 +34,23 @@ public class RecommendationService {
 
 
     public List<RecommendationDto> getRecommendations(UUID userId) {
-      
-        return rules.stream()
-                .map(rule -> {
-                    try {
-                        return rule.check(userId);
-                    } catch (Exception e) {
-                        System.err.println("Ошибка в правиле " + rule.getClass().getSimpleName() + ": " + e.getMessage());
-                        return Optional.empty();
-                    }
-                })
-                .flatMap(opt -> ((Optional<RecommendationDto>) opt).stream())
-                .collect(Collectors.toList());
+        List<RecommendationDto> result = new ArrayList<>();
 
+        for (RecommendationRules rule : rules) {
+            try {
+                Optional<RecommendationDto> recommendation = rule.check(userId);
+                recommendation.ifPresent(result::add);
+            } catch (Exception e) {
+                System.err.println("Ошибка в правиле " + rule.getClass().getSimpleName() + ": " + e.getMessage());
+            }
+        }
+
+        return result;
     }
 
+
     private boolean evaluateDynamicRule(UUID userId, DynamicRule rule) {
-        for (DynamicRule.RuleCondition condition : rule.getConditions()) {
+        for (RuleCondition condition : rule.getConditions()) {
             boolean conditionResult = evaluateCondition(userId, condition);
             if (!conditionResult) {
                 return false;
@@ -57,7 +59,7 @@ public class RecommendationService {
         return true;
     }
 
-    private boolean evaluateCondition(UUID userId, DynamicRule.RuleCondition condition) {
+    private boolean evaluateCondition(UUID userId, RuleCondition condition) {
         switch (condition.getQuery()) {
             case "USER_OF":
                 return checkUserOf(userId, condition.getArguments().get(0), condition.isNegate());
@@ -84,7 +86,7 @@ public class RecommendationService {
         return negate ? !isActive : isActive;
     }
 
-    private boolean checkTransactionSumCompare(UUID userId, DynamicRule.RuleCondition condition, boolean negate) {
+    private boolean checkTransactionSumCompare(UUID userId, RuleCondition condition, boolean negate) {
         String productType = condition.getArguments().get(0);
         String transactionType = condition.getArguments().get(1);
         String operator = condition.getArguments().get(2);
@@ -96,7 +98,7 @@ public class RecommendationService {
         return negate ? !result : result;
     }
 
-    private boolean checkDepositWithdrawCompare(UUID userId, DynamicRule.RuleCondition condition, boolean negate) {
+    private boolean checkDepositWithdrawCompare(UUID userId, RuleCondition condition, boolean negate) {
         String productType = condition.getArguments().get(0);
         String operator = condition.getArguments().get(1);
 
@@ -124,4 +126,3 @@ public class RecommendationService {
         }
     }
 }
-
