@@ -2,15 +2,16 @@ databaseChangeLog:
   - changeSet:
       id: 001-create-dynamic-rules-table
       author: liquibase-user
-      preConditions:
-        onFail: HALT  # Было: CONTINUE → теперь останавливает выполнение при ошибке
-        not:
-          tableExists:
-            tableName: dynamic_rules
       changes:
         - createTable:
             tableName: dynamic_rules
             columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
               - column:
                   name: product_name
                   type: VARCHAR(255)
@@ -30,11 +31,6 @@ databaseChangeLog:
   - changeSet:
       id: 002-create-rule-conditions-table
       author: liquibase-user
-      preConditions:
-        onFail: HALT  # Было: CONTINUE → теперь останавливает выполнение при ошибке
-        not:
-          tableExists:
-            tableName: rule_conditions
       changes:
         - createTable:
             tableName: rule_conditions
@@ -51,7 +47,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     foreignKey:
-                      name: fk_rule_conditions_rule_id
+                      foreignKeyName: fk_rule_conditions_rule_id
                       referencedTableName: dynamic_rules
                       referencedColumnNames: id
                       onDelete: CASCADE
@@ -59,15 +55,15 @@ databaseChangeLog:
                   name: query
                   type: VARCHAR(50)
                   constraints:
-                    nullable: false
+                  nullable: false
               - column:
                   name: arguments
-                  type: ARRAY
+                  type: TEXT[]
                   constraints:
-                    nullable: true
+                  nullable: true
               - column:
                   name: negate
                   type: BOOLEAN
                   defaultValue: false
                   constraints:
-                    nullable: false
+                  nullable: false
