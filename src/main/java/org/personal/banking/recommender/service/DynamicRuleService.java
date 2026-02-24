@@ -1,5 +1,6 @@
 package org.personal.banking.recommender.service;
 
+import org.personal.banking.recommender.dto.DynamicRuleDto;
 import org.personal.banking.recommender.entities.DynamicRule;
 import org.personal.banking.recommender.entities.RuleCondition;
 import org.personal.banking.recommender.postgres.repository.DynamicRuleRepository;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +60,12 @@ public class DynamicRuleService {
     }
 
     // 3. Получение всех правил
-    public List<DynamicRule> getAllRules() {
+    public List<DynamicRuleDto> getAllRules() {
         try {
             logger.debug("Загрузка всех динамических правил из БД");
-            return repository.findAll();
+            return repository.findAll().stream()
+                    .map(DynamicRuleDto::fromEntity)
+                    .collect(Collectors.toList());
         } catch (org.hibernate.HibernateException e) {
             logger.error("Ошибка Hibernate при загрузке правил", e);
             throw new RuntimeException("Ошибка доступа к данным правил", e);

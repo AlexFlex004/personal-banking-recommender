@@ -1,8 +1,11 @@
 package org.personal.banking.recommender.controllers;
 
+import jakarta.validation.Valid;
+import org.personal.banking.recommender.dto.DynamicRuleDto;
 import org.personal.banking.recommender.entities.DynamicRule;
 import org.personal.banking.recommender.service.DynamicRuleService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +23,9 @@ public class DynamicRuleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DynamicRule createRule(@RequestBody DynamicRule rule) {
-        return service.createRule(rule);
+    public ResponseEntity<DynamicRule> createRule(@RequestBody @Valid DynamicRule rule) {
+        DynamicRule createdRule = service.createRule(rule);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRule);
     }
 
 
@@ -32,8 +36,9 @@ public class DynamicRuleController {
     }
 
     @GetMapping
-    public List<DynamicRule> getAllRules() {
-        return service.getAllRules();
+    public ResponseEntity<List<DynamicRuleDto>> getAllRules() {
+        List<DynamicRuleDto> rules = service.getAllRules();
+        return ResponseEntity.ok(rules);
     }
 }
 

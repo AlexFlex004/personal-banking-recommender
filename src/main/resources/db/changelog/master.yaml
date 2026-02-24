@@ -47,24 +47,68 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     foreignKey:
-                      foreignKeyName: fk_rule_conditions_rule_id
-                      referencedTableName: dynamic_rules
-                      referencedColumnNames: id
-                      onDelete: CASCADE
-                      columns:
-                        - column:
-                             name: query
-                             type: VARCHAR(50)
-                             constraints:
-                             nullable: false
-                        - column:
-                             name: arguments
-                             type: TEXT[]
-                             constraints:
-                             nullable: true
-                        - column:
-                            name: negate
-                            type: BOOLEAN
-                            defaultValue: false
-                            constraints:
-                            nullable: false
+                    foreignKeyName: fk_rule_conditions_rule_id
+                    referencedTableName: dynamic_rules
+                    referencedColumnNames: id
+                    onDelete: CASCADE
+              - column:
+                  name: rule_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: query
+                  type: VARCHAR(50)
+                  constraints:
+                   nullable: false
+              - column:
+                  name: arguments
+                  type: TEXT[]
+                  constraints:
+                    nullable: true
+              - column:
+                  name: negate
+                  type: BOOLEAN
+                  defaultValue: false
+                  constraints:
+                    nullable: false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

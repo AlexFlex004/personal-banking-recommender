@@ -1,6 +1,7 @@
 package org.personal.banking.recommender.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -13,18 +14,23 @@ public class DynamicRule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JsonProperty("id")
     private UUID id;
 
     @Column(name = "product_name")
+    @JsonProperty("productName")
     private String productName;
 
     @Column(name = "product_id")
+    @JsonProperty("productId")
     private UUID productId;
 
     @Column(name = "product_text")
+    @JsonProperty("productText")
     private String productText;
 
     @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonProperty("conditions")
     private List<RuleCondition> conditions = new ArrayList<>();
 
 
