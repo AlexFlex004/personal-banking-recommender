@@ -51,19 +51,20 @@ databaseChangeLog:
                       referencedTableName: dynamic_rules
                       referencedColumnNames: id
                       onDelete: CASCADE
-              - column:
-                  name: query
-                  type: VARCHAR(50)
-                  constraints:
-                  nullable: false
-              - column:
-                  name: arguments
-                  type: TEXT[]
-                  constraints:
-                  nullable: true
-              - column:
-                  name: negate
-                  type: BOOLEAN
-                  defaultValue: false
-                  constraints:
-                  nullable: false
+                      columns:
+                        - column:
+                             name: query
+                             type: VARCHAR(50)
+                             constraints:
+                             nullable: false
+                        - column:
+                             name: arguments
+                             type: TEXT[]
+                             constraints:
+                             nullable: true
+                        - column:
+                            name: negate
+                            type: BOOLEAN
+                            defaultValue: false
+                            constraints:
+                            nullable: false

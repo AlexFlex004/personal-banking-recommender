@@ -28,7 +28,6 @@ import java.util.Properties;
 )
 public class SecondDatabaseConfig {
 
-    @Primary
     @Bean(name = "defaultDataSource")
     public DataSource defaultDataSource(DataSourceProperties properties) {
         return properties.initializeDataSourceBuilder()

@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class DynamicRuleService {
 
@@ -57,11 +60,15 @@ public class DynamicRuleService {
     // 3. Получение всех правил
     public List<DynamicRule> getAllRules() {
         try {
+            logger.debug("Загрузка всех динамических правил из БД");
             return repository.findAll();
         } catch (org.hibernate.HibernateException e) {
-            logger.error("Ошибка при загрузке правил из БД", e);
-            return Collections.emptyList();
+            logger.error("Ошибка Hibernate при загрузке правил", e);
+            throw new RuntimeException("Ошибка доступа к данным правил", e);
+        } catch (Exception e) {
+            logger.error("Неожиданная ошибка при загрузке правил", e);
+            throw new RuntimeException("Внутренняя ошибка сервера", e);
         }
+    }
 
-    }
-    }
+}
