@@ -1,5 +1,6 @@
 package org.personal.banking.recommender.service;
 
+import org.personal.banking.recommender.dto.DynamicRuleDto;
 import org.personal.banking.recommender.entities.DynamicRule;
 import org.personal.banking.recommender.entities.RuleCondition;
 import org.personal.banking.recommender.postgres.repository.DynamicRuleRepository;
@@ -11,6 +12,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class DynamicRuleService {
@@ -22,20 +29,21 @@ public class DynamicRuleService {
     public DynamicRuleService(DynamicRuleRepository repository) {
         this.repository = repository;
     }
+   // 1. Добавление нового правила
+    @Transactional
+    public DynamicRuleDto createRule(DynamicRuleDto dto) {
+        DynamicRule entity = dto.toEntity();
 
-    // 1. Добавление правила
-    public DynamicRule createRule(DynamicRule rule) {
-        try {
-            logger.info("Начинаем сохранение нового правила. ID правила: {}", rule.getId());
-            DynamicRule savedRule = repository.save(rule);
-            logger.info("Правило успешно сохранено. ID: {}", savedRule.getId());
-            return savedRule;
-        } catch (Exception e) {
-            logger.error("Ошибка при сохранении правила. ID: {}. Сообщение: {}",
-                    rule.getId(), e.getMessage(), e);
-            throw e;
+        logger.debug("Сохраняем правило с ID: {}. Количество условий: {}",
+                entity.getId(), entity.getConditions().size());
+        for (RuleCondition condition : entity.getConditions()) {
+            logger.debug("Условие ID: {}, Rule: {}", condition.getId(), condition.getRule());
         }
+
+        DynamicRule saved = repository.save(entity);
+        return DynamicRuleDto.fromEntity(saved);
     }
+
 
     // 2. Удаление правила
     public void deleteRule(UUID ruleId) {
@@ -55,13 +63,32 @@ public class DynamicRuleService {
     }
 
     // 3. Получение всех правил
-    public List<DynamicRule> getAllRules() {
-        try {
-            return repository.findAll();
-        } catch (org.hibernate.HibernateException e) {
-            logger.error("Ошибка при загрузке правил из БД", e);
-            return Collections.emptyList();
+    @Transactional(readOnly = true)
+    public List<DynamicRuleDto> getAllRules() {
+        Logger logger = LoggerFactory.getLogger(DynamicRuleService.class);
+
+        logger.debug("Начало загрузки всех динамических правил");
+
+        List<DynamicRule> rules = repository.findAllWithConditions();
+        logger.info("Загружено {} правил", rules.size());
+
+        for (DynamicRule rule : rules) {
+            logger.debug("Правило ID: {}, Conditions: {}",
+                    rule.getId(),
+                    rule.getConditions() != null ? rule.getConditions().size() : 0);
         }
 
+        List<DynamicRuleDto> dtos = rules.stream()
+                .map(DynamicRuleDto::fromEntity)
+                .collect(Collectors.toList());
+
+        for (DynamicRuleDto dto : dtos) {
+            logger.debug("DTO ID: {}, ConditionsCount: {}",
+                    dto.id(), dto.conditions().size());
+        }
+
+        return dtos;
     }
-    }
+
+
+}
