@@ -24,7 +24,7 @@ public class RuleCondition {
     private DynamicRule rule;
 
     @Column(name = "rule_type", nullable = false, length = 50)
-    @JsonProperty("rule_type")
+    @JsonProperty("ruleType")
     private String ruleType;
 
     @Column(name = "query", nullable = false, length = 50)
@@ -39,7 +39,7 @@ public class RuleCondition {
 
     @Column(name = "negate", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     @JsonProperty("negate")
-    private boolean negate = false;;
+    private boolean negate = false;
 
     public RuleCondition() {
     }
