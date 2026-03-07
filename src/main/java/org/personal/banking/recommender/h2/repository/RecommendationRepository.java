@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -101,6 +102,36 @@ public class RecommendationRepository {
         );
 
         return result != null ? result : 0;
+    }
+
+    public List<UUID> findUserIdsByUsername(String username) {
+
+        String sql = """
+        SELECT id
+        FROM users
+        WHERE username = ?
+    """;
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> UUID.fromString(rs.getString("id")),
+                username
+        );
+    }
+
+    public List<String> findFullNamesByUsername(String username) {
+
+        String sql = """
+        SELECT first_name || ' ' || last_name AS full_name
+        FROM users
+        WHERE username = ?
+    """;
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> rs.getString("full_name"),
+                username
+        );
     }
 
 

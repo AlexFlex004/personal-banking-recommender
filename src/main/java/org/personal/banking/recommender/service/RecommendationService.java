@@ -127,5 +127,29 @@ public class RecommendationService {
                 throw new IllegalArgumentException("Неверный оператор сравнения: " + operator);
         }
     }
+
+    public List<RecommendationDto> getRecommendationsByUsername(String username) {
+
+        List<UUID> users = repository.findUserIdsByUsername(username);
+
+        if (users.size() != 1) {
+            throw new RuntimeException("Пользователь не найден");
+        }
+
+        UUID userId = users.get(0);
+
+        return getRecommendations(userId);
+    }
+
+    public String getFullNameByUsername(String username) {
+
+        List<String> names = repository.findFullNamesByUsername(username);
+
+        if (names.size() != 1) {
+            throw new RuntimeException("Пользователь не найден");
+        }
+
+        return names.get(0);
+    }
 }
 
