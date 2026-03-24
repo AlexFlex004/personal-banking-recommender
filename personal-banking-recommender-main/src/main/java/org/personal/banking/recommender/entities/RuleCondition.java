@@ -34,7 +34,7 @@ public class RuleCondition {
 
     // Применение конвертера для преобразования List<String> ↔ TEXT[]
     @Convert(converter = org.personal.banking.recommender.converter.StringArrayConverter.class)
-    @Column(name = "arguments", columnDefinition = "TEXT[]")
+    @Column(name = "arguments", columnDefinition = "TEXT[]") - ошибка капиляции
     @JsonProperty("arguments")
     private List<String> arguments = new ArrayList<>();
 
