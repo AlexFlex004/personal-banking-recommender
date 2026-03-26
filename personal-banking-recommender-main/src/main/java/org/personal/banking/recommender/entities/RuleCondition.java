@@ -1,6 +1,5 @@
 package org.personal.banking.recommender.entities;
-import jakarta.persistence.*;
-import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -34,7 +33,7 @@ public class RuleCondition {
 
     // Применение конвертера для преобразования List<String> ↔ TEXT[]
     @Convert(converter = org.personal.banking.recommender.converter.StringArrayConverter.class)
-    @Column(name = "arguments", columnDefinition = "TEXT[]") - ошибка капиляции
+    @Column(name = "arguments", columnDefinition = "TEXT[]")
     @JsonProperty("arguments")
     private List<String> arguments = new ArrayList<>();
 
