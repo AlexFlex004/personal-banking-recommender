@@ -10,10 +10,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class TelegramBotConfig {
 
     @Bean
-    public TelegramBotsApi telegramBotsApi(TelegramRecommendationBot bot) throws Exception {
-        TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
-        api.registerBot(bot);
-        return api;
-
+    public TelegramBotsApi telegramBotsApi() throws Exception {
+        return new TelegramBotsApi(DefaultBotSession.class);
     }
 }
