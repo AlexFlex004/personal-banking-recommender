@@ -55,6 +55,8 @@ public class SecondDatabaseConfig {
         properties.setEnabled(true);
         return properties;
     }
+
+    @Primary
     @Bean
     public LocalContainerEntityManagerFactoryBean secondEntityManagerFactory(
             @Qualifier("defaultDataSource") DataSource dataSource) {
@@ -76,6 +78,7 @@ public class SecondDatabaseConfig {
         return em;
     }
 
+    @Primary
     @Bean
     public PlatformTransactionManager secondTransactionManager(
             @Qualifier("secondEntityManagerFactory") LocalContainerEntityManagerFactoryBean entityManagerFactory) {

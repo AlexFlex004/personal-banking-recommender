@@ -25,6 +25,7 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
         this.recommendationService = recommendationService;
     }
 
+
     @Override
     public String getBotUsername() {
         return botUsername;
@@ -52,8 +53,8 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
             sendMessage(chatId,
                     "Здравствуйте!\n\n" +
                             "Я бот рекомендаций банка.\n" +
-                            "Для получения персональных рекомендаций" +
-                            "Используй команду:\n\n" +
+                            "Для получения персональных рекомендаций " +
+                            "используйте команду:\n\n" +
                             "/recommend @username");
             return;
         }
