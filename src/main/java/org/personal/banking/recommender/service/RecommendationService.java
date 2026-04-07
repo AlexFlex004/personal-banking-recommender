@@ -12,23 +12,24 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class RecommendationService {
 
-    private final List<RecommendationRules> fixedRules;
+    private final List<RecommendationRules> rules;
     private final DynamicRuleRepository dynamicRuleRepository;
     private final RecommendationRepository repository;
     private final RecommendationRuleCounterRepository counterRepository;
 
     public RecommendationService(
-            List<RecommendationRules> fixedRules,
+            List<RecommendationRules> rules,
             DynamicRuleRepository dynamicRuleRepository,
             RecommendationRepository repository,
             RecommendationRuleCounterRepository counterRepository
     ) {
-        this.fixedRules = fixedRules;
+        this.rules = rules;
         this.dynamicRuleRepository = dynamicRuleRepository;
         this.repository = repository;
         this.counterRepository = counterRepository;
@@ -36,11 +37,17 @@ public class RecommendationService {
 
     public List<RecommendationDto> getRecommendations(UUID userId) {
 
-        List<RecommendationDto> recommendations = new ArrayList<>();
+        List<RecommendationDto> result = new ArrayList<>();
 
         // 🔹 фиксированные правила
-        for (RecommendationRules rule : fixedRules) {
-            rule.check(userId).ifPresent(recommendations::add);
+        for (RecommendationRules rule : rules) {
+            try {
+                Optional<RecommendationDto> recommendation = rule.check(userId);
+                recommendation.ifPresent(result::add);
+            } catch (Exception e) {
+                System.err.println("Ошибка в правиле "
+                        + rule.getClass().getSimpleName() + ": " + e.getMessage());
+            }
         }
 
         // 🔹 динамические правила
@@ -54,7 +61,7 @@ public class RecommendationService {
                 incrementRuleCounter(rule.getId().toString());
 
                 // 📦 добавляем рекомендацию
-                recommendations.add(new RecommendationDto(
+                result.add(new RecommendationDto(
                         rule.getProductId().toString(),
                         rule.getProductName(),
                         rule.getProductText()
@@ -62,7 +69,7 @@ public class RecommendationService {
             }
         }
 
-        return recommendations;
+        return result;
     }
 
     private void incrementRuleCounter(String ruleId) {
