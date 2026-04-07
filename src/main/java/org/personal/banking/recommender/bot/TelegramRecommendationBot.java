@@ -25,6 +25,7 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
         this.recommendationService = recommendationService;
     }
 
+
     @Override
     public String getBotUsername() {
         return botUsername;
@@ -45,28 +46,43 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
         String messageText = update.getMessage().getText();
         Long chatId = update.getMessage().getChatId();
 
-        // Если не команда /recommend — выводим приветствие
-        if (!messageText.startsWith("/recommend")) {
+        System.out.println("Received message: " + messageText);
 
+        //start
+        if (messageText.equals("/start")) {
             sendMessage(chatId,
                     "Здравствуйте!\n\n" +
                             "Я бот рекомендаций банка.\n" +
-                            "Для получения персональных рекомендаций" +
-                            " используйте команду:\n\n" +
-                            "/recommend (ваш юзернейм)");
+                            "Для получения персональных рекомендаций " +
+                            "используйте команду:\n\n" +
+                            "/recommend @username");
+            return;
+        }
+
+        //recommend
+        if (!messageText.startsWith("/recommend")) {
+
+            sendMessage(chatId,
+                    "Неизвестная команда.\n\n" +
+                            "Используйте:\n" +
+                            "/recommend @username");
 
             return;
         }
 
-        // Разбираем команду
         String[] parts = messageText.split(" ");
 
         if (parts.length != 2) {
-            sendMessage(chatId, "Пользователь не найден");
+            sendMessage(chatId, "Введите команду в формате:\n/recommend @username");
             return;
         }
 
         String username = parts[1];
+
+        // убираем @ если есть
+        if (username.startsWith("@")) {
+            username = username.substring(1);
+        }
 
         try {
 
@@ -76,20 +92,19 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
             String fullName =
                     recommendationService.getFullNameByUsername(username);
 
-            if (recommendations == null) {
-                sendMessage(chatId, "Пользователь не найден");
+            if (recommendations.isEmpty()) {
+                sendMessage(chatId, "Нет рекомендаций для пользователя " + fullName);
                 return;
             }
 
             StringBuilder response = new StringBuilder();
 
-            response.append("Здравствуйте ")
+            response.append("Здравствуйте, ")
                     .append(fullName)
-                    .append("\n\n")
-                    .append("Новые продукты для вас:\n");
+                    .append("!\n\n")
+                    .append("Рекомендации для вас:\n");
 
             for (RecommendationDto recommendation : recommendations) {
-
                 response.append("• ")
                         .append(recommendation.getName())
                         .append("\n");
@@ -99,8 +114,9 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
 
         } catch (Exception e) {
 
-            sendMessage(chatId, "Пользователь не найден");
+            e.printStackTrace();
 
+            sendMessage(chatId, "Пользователь не найден");
         }
     }
 
@@ -117,6 +133,4 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
-
 }

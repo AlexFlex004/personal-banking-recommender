@@ -19,10 +19,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = {
-                "org.personal.banking.recommender.entities",
-                "org.personal.banking.recommender.postgres.repository"
-        },
+        basePackages = "org.personal.banking.recommender.postgres.repository",
         entityManagerFactoryRef = "secondEntityManagerFactory",
         transactionManagerRef = "secondTransactionManager"
 )
@@ -57,6 +54,8 @@ public class SecondDatabaseConfig {
         properties.setEnabled(true);
         return properties;
     }
+
+    @Primary
     @Bean
     public LocalContainerEntityManagerFactoryBean secondEntityManagerFactory(
             @Qualifier("defaultDataSource") DataSource dataSource) {
@@ -64,8 +63,7 @@ public class SecondDatabaseConfig {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
         em.setPackagesToScan(
-                "org.personal.banking.recommender.entities",
-                "org.personal.banking.recommender.postgres.repository"
+                "org.personal.banking.recommender.entities"
         );
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -79,6 +77,7 @@ public class SecondDatabaseConfig {
         return em;
     }
 
+    @Primary
     @Bean
     public PlatformTransactionManager secondTransactionManager(
             @Qualifier("secondEntityManagerFactory") LocalContainerEntityManagerFactoryBean entityManagerFactory) {
